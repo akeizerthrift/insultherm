@@ -1,0 +1,646 @@
+:root {
+    --success-color: #5bc47e;
+    --danger-color: #f30f0f;
+    --primary-color: #2b3e55;
+    --secondary-color: rgb(105, 122, 151);
+    --offwhite-color: #eff2f7;
+    --secondary-offwhite-color: #FAFAFA;
+    --text-color: #152B4B;
+    --border-color: #D1D1D1;
+}
+
+html {
+    font-size: 16px;
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    background-color: white;
+    overflow-y: auto;
+    font-family:Lato,Arial;
+}
+
+#app-wrapper {
+    height: 100%;
+    width: 1280px;
+    display: flex;
+    flex-direction: column;
+    font-size: 16px;
+    overflow-y: auto;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    height: 800px;
+}
+
+#app-wrapper > header {
+    padding: 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+main {
+    position: relative;
+    flex: 1;
+    overflow-y: hidden;
+}
+
+.header-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.header-title > h1 {
+    color: white;
+    font-size: 20px;
+    padding: 0;
+    padding-left: 20px;
+    margin: 0;
+    font-variant: small-caps;
+}
+
+.header-title-image {
+    width: 28px;
+    height: 100%;
+}
+
+#estop-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid white;
+    border-radius: 3px;
+    background-color: #F30F0F;
+    width: 118px;
+    height: 48px;
+    font-size: 22px;
+    padding: 13px;
+}
+
+#estop-button:hover {
+    box-shadow: 0 0 5px white;
+}
+
+#app-launcher-button {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 48px;
+    padding: 1rem;
+    border: 1px solid white;
+    border-radius: 3px;
+    background-color: var(--primary-color);
+}
+
+#app-launcher-button > span:first-child {
+    padding-right: 0.25rem;
+}
+
+#app-launcher-button:hover {
+    background-color: var(--secondary-color);
+}
+
+#estop-button > span:first-child {
+    padding-right: 0.25rem;
+}
+
+#general-content {
+    height: 100%;
+}
+
+#general-content > div:first-child {
+    overflow-y: hidden;
+}
+
+#general-content > div:last-child {
+    overflow-y: hidden;
+}
+
+#general-configuration-editor-container {
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+#general-configuration-editor-container  > div {
+    width: 50%;
+    height: 100%;
+}
+
+#general-configuration-editor-container  > div:last-child {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#general-configuration-editor {
+    overflow-y: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.configuration-editor {
+    height: 100%;
+}
+
+.configuration-editor .widget-wrapper {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+#run-information-console {
+    width: 100%;
+    overflow-y: auto;
+}
+
+#run-information-console tr {
+    border: 0px;
+}
+
+#run-information-console td {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-left: 0px;
+    border-right: 0px;
+    border-top: 0px;
+    border-bottom: 1px solid #8d8d8d;
+}
+
+.machine-console-time > p {
+    margin-bottom: 0;
+}
+
+#run-information-console td:last-child {
+    text-align: right;
+}
+
+#run-information-console td > button {
+    border-bottom: 1px solid var(--primary-color) !important;
+    padding: 0.25rem;
+}
+
+#app-launcher-button {
+    color: white;
+}
+
+#app-launcher-button:hover {
+    cursor: pointer;
+}
+
+#estop-button {
+    color: white;
+}
+
+#estop-button:hover {
+    cursor: pointer;
+}
+
+/*
+    Shared UI items
+*/
+.v_layout {
+    display: flex;
+    flex-direction: column;
+}
+
+.h_layout {
+    display: flex;
+    flex-direction: row;
+}
+
+.grid-four {
+    display: grid;
+    grid-column-gap: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.modal-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 250ms ease-in-out;
+    background-color:rgba(22,35,56,.8);
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-container {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    border-radius: 4px;
+}
+
+.modal-container > header {
+    flex: 1 1 100%;
+}
+
+.modal-container > header{
+    flex: 0 1 auto;
+    background-color: var(--offwhite-color);
+    padding: 0.5em 1rem 0.5em 1rem;
+    border-radius: 4px 4px 0px 0px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.modal-container > header > h3 {
+    color: var(--text-color);
+    font-size: 1.2rem !important;
+    font-weight: bold;
+    padding: 0;
+    margin: 0;
+}
+
+.modal-container > header > * {
+    flex: 1 1 100%;
+}
+
+.modal-container > div {
+    padding: 0px 15px 10px;
+    flex: 1 1 100%;
+    overflow-y: auto;
+}
+
+.modal-container > footer {
+    flex: 0 1 auto;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    border-top: 1px solid var(--border-color);
+}
+
+.content-panel {
+    border: 1px solid var(--border-color);
+    background-color: white;
+    border-radius: 2px;
+    margin: 1rem;
+    flex: 1 1 100%;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.content-panel-header {
+    background-color: var(--offwhite-color);
+    color: var(--text-color);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    font-size: 18px;
+    font-weight: bold;
+    flex: 0 1 auto;
+}
+
+.content-panel-button-group {
+    text-align: center;
+    display: flex;
+    justify-content: space-evenly;
+    padding: 0.5rem;
+    align-items: center;
+}
+
+.content-panel-body {
+    flex: 1 1 100%;
+}
+
+.content-panel-button {
+    all: unset;
+    width: 127px;
+    height: 165px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.content-panel-button .fa {
+    font-size: 41px;
+    margin-bottom: 0.25rem;
+}
+
+.content-panel-button.start-button {
+    background-color: #1AC876;
+}
+
+.content-panel-button.stop-button {
+    background-color: var(--primary-color);
+}
+
+.content-panel-button.stop-button.running {
+    background-color: var(--danger-color);
+}
+
+.content-panel-button.debug-button {
+    width: 260px;
+    height: 60px;
+    font-size: 1rem;
+    background-color: orange;
+}
+
+.content-panel-button.debug-button .fa {
+    font-size: 32px;
+}
+
+.content-panel-button.debug-button:disabled {
+    opacity: 0.5;
+}
+
+.content-panel-button.debug-button:disabled:hover {
+    cursor: default;
+}
+
+/*
+    WIDGETS
+*/
+.widget-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.widget-wrapper.inline {
+    flex-direction: row;
+    align-items: center;
+}
+
+.widget-wrapper > label {
+    font-weight: bold;
+    color: rgb(28, 52, 79);
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin: 0;
+    padding-right: 0.25rem;
+    font-weight: 700;
+}
+
+.widget-textbox > input {
+    outline: none;
+    font-size: 0.8rem;
+    height: 2rem;
+    width: 100%;
+    padding: 0.9rem;
+    border: 1px solid rgb(45, 58, 77);
+    border-radius: 3px;
+    background-color: white;
+    box-sizing: border-box;
+}
+
+.widget-select {
+    position: relative;
+    height: 2rem;
+    float: left;
+    font-size: 0.9rem;
+    color: rgb(28, 52, 79);
+}
+
+.widget-select > select {
+    appearance: none;
+    height: inherit;
+    display: block;
+    background-color: white;
+    width: 100%;
+    float: right;
+    padding: 0px 1.5rem 0px 0.5rem;
+    border: 1px solid rgb(45, 58, 77);
+    border-radius: 0.15rem;
+}
+
+.widget-select::after {
+    content: "";
+    font-size: 0.7rem;
+    font-family: "Font Awesome 5 Pro";
+    right: 11px;
+    height: inherit;
+    padding: 0px 0px 0px 8px;
+    position: absolute;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+}
+
+.widget-load-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.widget-load-overlay-blurred {
+    filter: blur(1px);
+}
+
+.widget-error {
+    font-size: 0.8rem;
+    color: red;
+}
+
+.widget-checkbox {
+    display: block;
+    position: relative;
+    padding-left: 2rem;
+    cursor: pointer;
+    font-size: 1rem;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+  
+.widget-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.widget-checkmark {
+    position: absolute;
+    top: 0.125rem;
+    left: 0.25rem;
+    height: 1rem;
+    width: 1rem;
+    background-color: white;
+    border: 1px solid #8d8d8d;
+    border-radius: 50%;
+}
+
+.widget-checkbox:hover input ~ .widget-checkmark {
+    background-color: var(--offwhite-color);
+}
+  
+.widget-checkbox input:checked ~ .widget-checkmark {
+    background-color: var(--success-color);
+}
+  
+.widget-checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+  
+.widget-checkbox input:checked ~ .widget-checkmark:after {
+    display: block;
+}
+  
+.widget-checkbox .widget-checkmark:after {
+    left: 0.3rem;
+    top: 0.15rem;
+    width: 0.25rem;
+    height: 0.5rem;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.widget-button-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.widget-button-group .widget-button {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    min-width: 96px;
+}
+
+.widget-button.icon {
+    background-color: inherit;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.widget-button.icon:hover {
+    color: var(--success-color);
+}
+
+.widget-button {
+    text-decoration: none;
+    outline: inherit;
+    border: none;
+    color: white;
+    padding: 0.5em;
+    border-radius: 4px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.widget-button:hover {
+    cursor: pointer;
+}
+
+.widget-button.primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.widget-button.secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.widget-button.primary:hover:enabled {
+    background-color: var(--success-color);
+}
+
+.widget-button.primary.inverse {
+    color: var(--primary-color);
+    background-color: white;
+    border-color: var(--primary-color);
+}
+
+.widget-button.primary.inverse:hover:enabled {
+    color: white;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.widget-button.success {
+    background-color: var(--success-color);
+}
+
+.widget-button.success:hover:enabled {
+    background-color: rgb(91,196,126);
+}
+
+.widget-button.danger {
+    background-color: var(--danger-color);
+}
+
+.widget-button.danger:hover:enabled {
+    background-color: rgb(196, 91, 91);
+}
+
+.widget-button:disabled {
+    opacity: 0.5;
+}
+
+.widget-button.primary.inverse,
+.widget-button.primary.inverse:hover {
+    background-color: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.widget-button.primary.link {
+    color: 1px solid var(--primary-color);
+    background-color: inherit;
+    border-color: inherit;
+    border-radius: 0px;
+}
+
+.widget-button.primary.link:hover {
+    background-color: inherit;
+    border-bottom: 1px solid var(--primary-color);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.widget-spin-loader {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 1rem;
+    height: 1rem;
+    animation: spin 2s linear infinite;
+}

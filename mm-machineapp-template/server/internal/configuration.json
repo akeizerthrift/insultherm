@@ -1,0 +1,11 @@
+{
+    "reset_running_total_cuts": false,
+    "doubleBubble": false,
+    "singleBubble": true,
+    "sheet_count": 5,
+    "prepare_new_roll": false,
+    "home": false,
+    "first_roll": true,
+    "material_length": 10,
+    "manual_cut": false
+}

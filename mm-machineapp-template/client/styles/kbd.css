@@ -1,0 +1,27 @@
+/*$.kbd-0.5.1;<https://github.com/mntn-dev/kbd/>*/
+
+
+#_kbd, #_kbd_numpad{position:fixed;bottom:0;width:100%;background:#EEF1F5;z-index:200;bottom:-100%;transform-origin:bottom;}
+#_kbd #_kbd_wrap{text-align:center;width:100%;display:block;min-width:500px;}
+#_kbd_numpad #_kbd_wrap_numpad{text-align:center;width:50%;display:block;min-width:500px;margin:auto;}
+#_kbd, #_kbd_numpad {cursor:default;padding:0;margin:0;outline:0;border-top:4px solid #EEF1F5;border-bottom:4px solid #EEF1F5;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;touch-action:none;}
+#_kbd *, #_kbd_numpad *{cursor:default;padding:0;margin:0;outline:0;border:0;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;touch-action:none;}
+#_kbd button, #_kbd_numpad button{width:10%;padding:20px;color:#111;border:4px solid #EEF1F5;border-radius:8px;background:#fff;font-size:2vw;line-height:3vw;}
+#_kbd ._kbd-h, #_kbd_numpad ._kbd-h{background:#111!important;}
+
+#_kbd button.l{width:15%;}
+#_kbd_numpad button.l{width:30%;}
+#_kbd_numpad button.s{width:15%;letter-spacing:-1vw;}
+#_kbd button.xl{width:40%;background:#f8f8f8}
+
+#_kbd ._ext{position:relative;display:inline-block;height:100%;width:10%;overflow:visible;}
+#_kbd_numpad ._ext{position:relative;display:inline-block;height:100%;width:30%;overflow:visible;}
+._ext-caps{color:aquamarine!important;}
+
+._ext-box{position:absolute;width:100%;height:auto;display:none;box-shadow:10px 10px 50px 0 rgba(0,0,0,0.33);z-index:201;}
+._ext-box button,._ext button{width:100%!important;}
+
+#_kbd ._kbd-h, #_kbd_numpad ._kbd-h {background:#f8f8f8!important;}
+
+
+@media(max-device-width:800px),(max-width:800px){#_kbd button{font-size:3vw!important;line-height:3vw!important;padding:25px;}}

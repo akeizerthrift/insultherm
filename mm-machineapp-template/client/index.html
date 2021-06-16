@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>MachineApp Template</title>
+    <link href="/styles/font-awesome.min.css" rel='stylesheet' type='text/css'>
+    <link href="/styles/index.css" rel='stylesheet' type='text/css'>
+    <link href="/styles/ui.css" rel='stylesheet' type='text/css'>
+    <link href="/styles/kbd.css" rel='stylesheet' type='text/css'>
+    <script src="/js/jquery-3.5.1.min.js"></script>
+    <script src="/js/kbd.js"></script>
+    <script src="/widgets.js"></script>
+    <script src="/ui.js"></script>
+    <script src="/index.js"></script>
+  </head>
+  <body>
+    <div id="app-wrapper">
+      <header>
+        <button id="app-launcher-button"><span class="fa fa-long-arrow-left"></span> Back To App Launcher</button>
+        <span class="header-title"><img src="/images/white-logo.png" class="header-title-image" /><h1>MACHINEAPP TEMPLATE</h1></span>
+        <button id="estop-button"><span class="fa fa-exclamation-triangle"></span> <span id="estop-button-text">STOP</span></button>
+      </header>
+      <main id="main-content">
+        <div id="general-content">
+          <div class="h_layout" style="height: 100%; ">
+            <div class="v_layout" style="height: 100%;width: 50%; flex: auto;">
+              <div class="h_layout" style="height: calc(60% - 2rem); flex: auto;">
+                <div class="content-panel">
+                  <div class="content-panel-header">
+                    Execute
+                  </div>
+                  <div class="content-panel-body" id="general-configuration-editor-container">
+                    <div id="general-configuration-editor"></div>
+                    <div>
+                      
+                      <div class="content-panel-button-group">
+                        <button class="content-panel-button start-button" id="run-start-button">
+                          <span class="fa fa-play"></span><div>START</div>
+                        </button>
+                        <button class="content-panel-button stop-button" id="run-stop-button">
+                          <span class="fa fa-stop"></span><div>STOP</div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="content-panel" style="height: calc(40% - 2rem); flex: auto;">
+                <div class="content-panel-header">
+                  Information Console
+                </div>
+                <div class="content-panel-body" style="overflow-y: auto;">
+                  <table id="run-information-console">
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+           
+            <div class="v_layout" style="height: 100%;width: 50%; flex: auto;">
+              <div class="content-panel">
+                <div class="content-panel-header">
+                  Program Status Monitor
+                </div>
+                <div class="content-panel-body" id="custom-container">
+                </div>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

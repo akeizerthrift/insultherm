@@ -1,0 +1,12 @@
+{
+  "name": "app_template",
+  "version": "1.0.0",
+  "description": "A template for MachineApps",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Machine Logic Team",
+  "license": "ISC",
+  "dependencies": {}
+}
