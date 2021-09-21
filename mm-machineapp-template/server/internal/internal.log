@@ -15911,3 +15911,34 @@ http.client.RemoteDisconnected: Remote end closed connection without response
 2021-05-06 21:05:43,578 {internal.notifier:77} (INFO) - Received new client.
 2021-05-06 21:10:11,607 {internal.notifier:77} (INFO) - Received new client.
 2021-06-16 15:50:07,425 {internal.notifier:77} (INFO) - Received new client.
+2021-09-15 10:20:38,921 {root:14} (INFO) - Running in production mode
+2021-09-15 10:20:38,921 {root:29} (INFO) - Not starting the MachineApp.
+2021-09-15 10:21:46,621 {root:14} (INFO) - Running in production mode
+2021-09-15 10:21:46,622 {root:29} (INFO) - Not starting the MachineApp.
+2021-09-15 10:26:06,844 {root:14} (INFO) - Running in production mode
+2021-09-15 10:26:06,845 {root:29} (INFO) - Not starting the MachineApp.
+2021-09-15 10:29:02,231 {root:32} (INFO) - Running in development mode
+2021-09-15 10:29:02,232 {root:34} (INFO) - Starting your MachineApp
+2021-09-15 10:29:02,235 {internal.notifier:66} (INFO) - Running the socket API on port 8081
+2021-09-15 10:29:33,998 {root:32} (INFO) - Running in development mode
+2021-09-15 10:29:33,999 {root:34} (INFO) - Starting your MachineApp
+2021-09-15 10:29:34,002 {internal.notifier:66} (INFO) - Running the socket API on port 8081
+2021-09-15 10:30:49,410 {root:14} (INFO) - Running in production mode
+2021-09-15 10:30:49,410 {root:29} (INFO) - Not starting the MachineApp.
+2021-09-15 10:38:00,146 {root:14} (INFO) - Running in production mode
+2021-09-15 10:38:00,147 {root:29} (INFO) - Not starting the MachineApp.
+2021-09-15 10:39:48,822 {root:14} (INFO) - Running in production mode
+2021-09-15 10:39:48,822 {root:29} (INFO) - Not starting the MachineApp.
+2021-09-15 10:40:23,844 {root:32} (INFO) - Running in development mode
+2021-09-15 10:40:23,844 {root:34} (INFO) - Starting your MachineApp
+2021-09-15 10:40:23,845 {internal.notifier:66} (INFO) - Running the socket API on port 8081
+2021-09-15 10:40:36,515 {root:14} (INFO) - Running in production mode
+2021-09-15 10:40:36,516 {root:29} (INFO) - Not starting the MachineApp.
+2021-09-15 10:40:44,062 {root:32} (INFO) - Running in development mode
+2021-09-15 10:40:44,062 {root:34} (INFO) - Starting your MachineApp
+2021-09-15 10:40:44,063 {internal.notifier:66} (INFO) - Running the socket API on port 8081
+2021-09-15 10:41:29,012 {root:32} (INFO) - Running in development mode
+2021-09-15 10:41:29,012 {root:34} (INFO) - Starting your MachineApp
+2021-09-15 10:41:29,013 {internal.notifier:66} (INFO) - Running the socket API on port 8081
+2021-09-15 10:41:33,885 {root:14} (INFO) - Running in production mode
+2021-09-15 10:41:33,885 {root:29} (INFO) - Not starting the MachineApp.

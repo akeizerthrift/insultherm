@@ -12,6 +12,8 @@ from digital_out import Digital_Out
 from pneumatic import Pneumatic
 #from math import ceil, sqrt #we will not need math
 
+# THIS IS A TEST FOR THE UPLOAD 
+
 '''
 If we are in development mode (i.e. running locally), we Initialize a mocked instance of machine motion.
 This fake MachineMotion interface is used ONLY when developing locally on your own machine motion, so
@@ -72,8 +74,8 @@ class MachineAppEngine(BaseMachineAppEngine):
         '''
         self.logger.info('Running initialization')
 
-        #self.sim_enable = True
-        self.sim_enable = False
+        self.sim_enable = True
+        # self.sim_enable = False
 
         if self.sim_enable == True:
             mm_IP= '127.0.0.1' #fake machine IP 

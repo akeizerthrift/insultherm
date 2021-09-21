@@ -143,8 +143,8 @@ class MachineAppEngine(BaseMachineAppEngine):
         '''
         self.logger.info('Running initialization')
         
-        self.sim_enable = True
-        #self.sim_enable = False
+        # self.sim_enable = True
+        self.sim_enable = False
 
         if self.sim_enable == True:
             mm1_IP = mm2_IP = mm3_IP = "127.0.0.1"
