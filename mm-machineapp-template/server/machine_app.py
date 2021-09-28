@@ -12,7 +12,6 @@ from digital_out import Digital_Out
 from pneumatic import Pneumatic
 #from math import ceil, sqrt #we will not need math
 
-# THIS IS A TEST FOR THE UPLOAD 
 
 '''
 If we are in development mode (i.e. running locally), we Initialize a mocked instance of machine motion.
@@ -43,9 +42,13 @@ class MachineAppEngine(BaseMachineAppEngine):
             'Initialize'            : InitializeState(self),
             'Start_State'           : StartState(self),
             'Prepare_New_Roll'      : PrepareNewRollState(self),
-            'Roll'                  : Roll(self),
+            'Replace_Tape'          : ReplaceTapeState(self),
+            'Cut_Tape'              : CutTapeState(self),
+            'Feed'                  : Feed(self),
             'Clamp'                 : Clamp(self),
+            'Tape'                  : Tape(self),
             'Cut'                   : Cut(self),
+            'OutFeed'               : Outfeed(self),
             'Home'                  : HomingState(self), #home state rollers need to be down
             'First_Roll'            : FirstRoll(self),
             'Manual_Cut'            : Manual_Cut(self)
@@ -123,14 +126,24 @@ class MachineAppEngine(BaseMachineAppEngine):
         #Setup your global variables
         self.Roller_speed = 500
         self.Roller_accel = 120
-        self.TimingBelt_speed = 850
-        self.TimingBelt_accel = 850
+        self.TapeCut_speed = 850
+        self.TapeCut_accel = 850
+        self.Grip_speed = 850
+        self.Grip_accel = 850
         self.scrap_distance = 20 #mm 
         self.sheet_count = 0
         self.material_length = 0
         self.type_material = 0
         self.sheets_cut = self.sheet_count 
-        self.cut_length = 1500
+        self.cut_length = 1000
+        self.tape_start = 5             #positions tape under material
+        self.tape_apply_length = 10     #distance applicator travels before buffer
+        self.tape_buff_length = 800     #distance before cut
+        self.tape_total_length = 1000   #cuts and leaves tape in final postion
+        self.roller_feed_length = 100   #postions material in grip
+        self.grip_tighten_length = 3    #clamped material pulled taught
+        self.grip_offload_length = 100  #postion material is offloaded
+        self.grip_drop_length = 50      #moves material out of grip
         self.reset_running_total_cuts = False
         self.running_total_cuts = 0
         
@@ -311,6 +324,48 @@ class PrepareNewRollState(MachineAppState):
 
     def update(self): 
         pass    
+
+class ReplaceTapeState(MachineAppState):
+     ''' Lifts clamp and positions tape applicator where it can be refed. '''
+    
+    def __init__(self, engine):
+        super().__init__(engine)
+
+    def onEnter(self):
+        self.engine.knife_output.low()
+        time.sleep(0.1) 
+        sendNotification(NotificationLevel.UI_INFO, 'Feed New Roll and Select First Roll Sequence', {'ui_state': 'Prepare New Roll'})
+        self.engine.MachineMotion.emitHome(self.engine.timing_belt_axis)
+        self.engine.roller_pneumatic.pull()
+        self.engine.plate_pneumatic.pull()
+        self.engine.MachineMotion.waitForMotionCompletion()
+       # if self.engine.MachineMotion.isMotionCompleted() = False:
+        #    self.engine.MachineMotion.waitForMotionCompletion()
+        self.engine.stop()
+
+    def update(self): 
+        pass    
+
+class CutTapeState(MachineAppState):
+     ''' Engages tape knife and break so tape can be trimmed. '''
+    
+    def __init__(self, engine):
+        super().__init__(engine)
+
+    def onEnter(self):
+        self.engine.knife_output.low()
+        time.sleep(0.1) 
+        sendNotification(NotificationLevel.UI_INFO, 'Feed New Roll and Select First Roll Sequence', {'ui_state': 'Prepare New Roll'})
+        self.engine.MachineMotion.emitHome(self.engine.timing_belt_axis)
+        self.engine.roller_pneumatic.pull()
+        self.engine.plate_pneumatic.pull()
+        self.engine.MachineMotion.waitForMotionCompletion()
+       # if self.engine.MachineMotion.isMotionCompleted() = False:
+        #    self.engine.MachineMotion.waitForMotionCompletion()
+        self.engine.stop()
+
+    def update(self): 
+        pass    
     
 class FirstRoll(MachineAppState):
     ''' Rolls material enought to cut first roll and scrap that first piece'''
@@ -434,7 +489,7 @@ class HomingState(MachineAppState):
         pass    
     
             
-class Roll(MachineAppState):
+class Feed(MachineAppState):
     '''
     Activate rollers to roll material
     '''
