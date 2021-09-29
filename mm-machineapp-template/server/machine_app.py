@@ -153,7 +153,7 @@ class MachineAppEngine(BaseMachineAppEngine):
         self.type_material = 0
         self.sheets_cut = self.sheet_count 
         self.cut_start_pos = 1000
-        self.postion_cut_length = 100
+        self.pos_cut_length = 100
         self.cut_end_pos = 0
         self.tape_start_pos = 50             #position tape under material
         self.tape_apply_pos = 60     #postion of applicator before buffer
@@ -179,7 +179,7 @@ class MachineAppEngine(BaseMachineAppEngine):
             self.sheet_count                    = self.configuration['sheet_count']
             self.reset_running_total_cuts = self.configuration['reset_running_total_cuts']
 
-            self.material_length_mm = self.material_length - self.roller_feed_length
+            self.material_length_mm = self.material_length - (self.roller_feed_length - self.pos_cut_length)
             
             # if self.configuration['singleBubble']:
             #      self.material_length_mm = self.material_length * 24.5 * 1.055 #tolerence
@@ -339,14 +339,20 @@ class PrepareNewRollState(MachineAppState):
 
     def onEnter(self):
         self.engine.knife_output.low()
+        self.engine.apply_output.low()
+        self.engine.buff_output.low()
+        self.engine.tape_knife_output.low()
+        self.engine.break_output.high()
+
         time.sleep(0.1) 
         sendNotification(NotificationLevel.UI_INFO, 'Feed New Roll and Select First Roll Sequence', {'ui_state': 'Prepare New Roll'})
         self.engine.MachineMotion.emitHome(self.engine.cut_tape_axis)
+        self.engine.MachineMotion.emitHome(self.engine.grip_axis)
         self.engine.roller_pneumatic.pull()
         self.engine.plate_pneumatic.pull()
+        self.engine.grip_pneumatic.pull()
         self.engine.MachineMotion.waitForMotionCompletion()
-       # if self.engine.MachineMotion.isMotionCompleted() = False:
-        #    self.engine.MachineMotion.waitForMotionCompletion()
+
         self.engine.stop()
 
     def update(self): 
@@ -360,14 +366,15 @@ class ReplaceTapeState(MachineAppState):
 
     def onEnter(self):
         self.engine.knife_output.low()
-        time.sleep(0.1) 
+        self.engine.apply_output.low()
+        self.engine.buff_output.low()
+        self.engine.tape_knife_output.low()
+        self.engine.break_output.low()
+
+        time.sleep(0.1)
         sendNotification(NotificationLevel.UI_INFO, 'Feed New Roll and Select First Roll Sequence', {'ui_state': 'Prepare New Roll'})
-        self.engine.MachineMotion.emitHome(self.engine.cut_tape_axis)
-        self.engine.roller_pneumatic.pull()
-        self.engine.plate_pneumatic.pull()
-        self.engine.MachineMotion.waitForMotionCompletion()
-       # if self.engine.MachineMotion.isMotionCompleted() = False:
-        #    self.engine.MachineMotion.waitForMotionCompletion()
+        self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis, 1000)
+
         self.engine.stop()
 
     def update(self): 
@@ -381,14 +388,11 @@ class CutTapeState(MachineAppState):
 
     def onEnter(self):
         self.engine.knife_output.low()
-        time.sleep(0.1) 
-        sendNotification(NotificationLevel.UI_INFO, 'Feed New Roll and Select First Roll Sequence', {'ui_state': 'Prepare New Roll'})
-        self.engine.MachineMotion.emitHome(self.engine.cut_tape_axis)
-        self.engine.roller_pneumatic.pull()
-        self.engine.plate_pneumatic.pull()
-        self.engine.MachineMotion.waitForMotionCompletion()
-       # if self.engine.MachineMotion.isMotionCompleted() = False:
-        #    self.engine.MachineMotion.waitForMotionCompletion()
+        self.engine.apply_output.low()
+        self.engine.buff_output.low()
+        self.engine.tape_knife_output.high()
+        self.engine.break_output.high()
+
         self.engine.stop()
 
     def update(self): 
@@ -404,12 +408,18 @@ class FirstRoll(MachineAppState):
         
         self.engine.knife_output.low()
         time.sleep(0.1) #seconds
-        self.engine.MachineMotion.emitSpeed(self.engine.TimingBelt_speed)
-        self.engine.MachineMotion.emitAcceleration(self.engine.TimingBelt_accel)
+        self.engine.MachineMotion.emitSpeed(self.engine.Cut_speed)
+        self.engine.MachineMotion.emitAcceleration(self.engine.Cut_accel)
+
         self.engine.MachineMotion.emitHome(self.engine.cut_tape_axis) #moves timing belt to Home position (0)
         sendNotification(NotificationLevel.INFO, 'Knife moving to home')
         self.engine.MachineMotion.waitForMotionCompletion()
+
+        self.engine.MachineMotion.emitHome(self.engine.grip_axis)
+        self.engine.MachineMotion.waitForMotionCompletion()
+
         self.engine.roller_pneumatic.release()
+        self.engine.grip_pneumatic.push()
         time.sleep(0.5)
         sendNotification(NotificationLevel.INFO, 'Rollers Released')
         self.engine.plate_pneumatic.pull()
@@ -423,7 +433,7 @@ class FirstRoll(MachineAppState):
         self.engine.sheet_count = self.engine.sheet_count + 1 #this makes sure we remove this cut from our count
         self.engine.running_total_cuts = self.engine.running_total_cuts - 1
             
-        self.gotoState('Clamp')
+        self.gotoState('Measure')
 
     def update(self): 
         pass
@@ -450,6 +460,7 @@ class StartState(MachineAppState):
         self.engine.MachineMotion.waitForMotionCompletion()
 
         self.engine.roller_pneumatic.release()
+        self.engine.grip_pneumatic.pull()
         time.sleep(0.5)
         sendNotification(NotificationLevel.INFO, 'Rollers Released')
         self.engine.plate_pneumatic.pull()
@@ -483,37 +494,40 @@ class HomingState(MachineAppState):
     def onEnter(self):
         
         self.engine.t0 = time.time()
+
+        # Reset machine state
+        # Redundent?
         
-        self.engine.knife_output.low()
-        time.sleep(0.1) #seconds
+        # self.engine.knife_output.low()
+        # time.sleep(0.1) #seconds
 
-        #reset tape
-        self.engine.apply_output.low()
-        self.engine.buff_output.low()
-        self.engine.tape_knife_output.low()
-        self.engine.break_output.high()
+        # #reset tape
+        # self.engine.apply_output.low()
+        # self.engine.buff_output.low()
+        # self.engine.tape_knife_output.low()
+        # self.engine.break_output.high()
 
-        self.engine.roller_pneumatic.release()
-        time.sleep(0.5)
-        sendNotification(NotificationLevel.INFO, 'Rollers Released')
+        # self.engine.roller_pneumatic.release()
+        # time.sleep(0.5)
+        # sendNotification(NotificationLevel.INFO, 'Rollers Released')
 
-        self.engine.MachineMotion.emitSpeed(self.engine.Cut_speed)
-        self.engine.MachineMotion.emitAcceleration(self.engine.Cut_accel)
+        # self.engine.MachineMotion.emitSpeed(self.engine.Cut_speed)
+        # self.engine.MachineMotion.emitAcceleration(self.engine.Cut_accel)
 
-        self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis,0) #moves timing belt to Home position (0)
-        self.engine.MachineMotion.waitForMotionCompletion()
-        sendNotification(NotificationLevel.INFO, 'Knife moving to home')
+        # self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis,0) #moves timing belt to Home position (0)
+        # self.engine.MachineMotion.waitForMotionCompletion()
+        # sendNotification(NotificationLevel.INFO, 'Knife moving to home')
 
-        self.engine.MachineMotion.emitSpeed(self.engine.Grip_speed)
-        self.engine.MachineMotion.emitAcceleration(self.engine.Grip_accel)
+        # self.engine.MachineMotion.emitSpeed(self.engine.Grip_speed)
+        # self.engine.MachineMotion.emitAcceleration(self.engine.Grip_accel)
 
-        self.engine.MachineMotion.emitAbsoluteMove(self.engine.grip_axis,0)
-        self.engine.MachineMotion.waitForMotionCompletion()
-        sendNotification(NotificationLevel.INFO, 'Moving grip to home')
+        # self.engine.MachineMotion.emitAbsoluteMove(self.engine.grip_axis,0)
+        # self.engine.MachineMotion.waitForMotionCompletion()
+        # sendNotification(NotificationLevel.INFO, 'Moving grip to home')
 
-        self.engine.grip_pneumatic.pull()
-        self.engine.plate_pneumatic.pull()
-        sendNotification(NotificationLevel.INFO, 'Plate is up')
+        # self.engine.grip_pneumatic.pull()
+        # self.engine.plate_pneumatic.pull()
+        # sendNotification(NotificationLevel.INFO, 'Plate is up')
         
         self.gotoState('Feed')
         
@@ -689,7 +703,7 @@ class Cut(MachineAppState):
         self.engine.MachineMotion.emitSpeed(self.engine.Grip_speed)
         self.engine.MachineMotion.emitAcceleration(self.engine.Grip_accel)
 
-        self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.position_cut_length)
+        self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.poscut_length)
         self.engine.MachineMotion.waitForMotionCompletion()
 
         #clamp
