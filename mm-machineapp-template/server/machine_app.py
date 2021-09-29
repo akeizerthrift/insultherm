@@ -105,7 +105,7 @@ class MachineAppEngine(BaseMachineAppEngine):
         # Grip Timing Belt
         self.grip_axis = 3
         self.MachineMotion.configAxis(self.grip_axis, 8, 150) #150 is for mechanical gain for timing belt. If gearbox used then divide by 5
-        self.MachineMotion.configAxisDirection(self.grip_axis, 'positive')
+        self.MachineMotion.configAxisDirection(self.grip_axis, 'negative')
         
         #pneumatics
         dio1 = mm_IP
