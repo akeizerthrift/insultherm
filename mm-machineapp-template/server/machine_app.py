@@ -153,9 +153,10 @@ class MachineAppEngine(BaseMachineAppEngine):
         self.type_material = 0
         self.sheets_cut = self.sheet_count 
         self.cut_start_pos = 1000
+        self.postion_cut_length = 100
         self.cut_end_pos = 0
-        self.tape_start_pos = 5             #position tape under material
-        self.tape_apply_pos = 10     #postion of applicator before buffer
+        self.tape_start_pos = 50             #position tape under material
+        self.tape_apply_pos = 60     #postion of applicator before buffer
         self.tape_buff_pos = 800     #position before cut
         self.tape_end_pos = self.cut_start_pos   #cuts and leaves tape in final postion
         self.roller_feed_length = 100   #postions material in grip
@@ -302,19 +303,19 @@ class Manual_Cut(MachineAppState):
         self.engine.plate_pneumatic.push() #clamp
         time.sleep(0.2)
         
-        self.engine.knife_output.high()
+        self.engine.knife_output.low()
         time.sleep(0.2) 
         
-        self.engine.MachineMotion.emitSpeed(self.engine.CutTape_speed)
-        self.engine.MachineMotion.emitAcceleration(self.engine.CutTape_accel)
+        self.engine.MachineMotion.emitSpeed(self.engine.Cut_speed)
+        self.engine.MachineMotion.emitAcceleration(self.engine.Cut_accel)
         sendNotification(NotificationLevel.INFO,'Cutting')
         
-        self.engine.MachineMotion.emitRelativeMove(self.engine.cut_tape_axis, "positive",self.engine.cut_length) 
+        self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis, self.engine.cut_start_pos) 
         self.engine.MachineMotion.waitForMotionCompletion()
-        self.engine.knife_output.low()
+        self.engine.knife_output.high()
         time.sleep(0.1)
         
-        self.engine.MachineMotion.emitRelativeMove(self.engine.cut_tape_axis, "positive",-self.engine.cut_length)
+        self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis, self.engine.cut_end_pos)
         # Double Cut (optional)
         # self.engine.MachineMotion.emitRelativeMove(self.engine.cut_tape_axis, "positive",self.engine.cut_length) 
         # self.engine.MachineMotion.emitRelativeMove(self.engine.cut_tape_axis, "positive",-self.engine.cut_length)
@@ -546,14 +547,14 @@ class Feed(MachineAppState):
         
         sendNotification(NotificationLevel.UI_INFO,'Feeding State',{'ui_state': 'Feed'})
         #moves material into clamp
-        self.engine.MachineMotion.roller_pneumatic.release()
+        self.engine.roller_pneumatic.release()
         sendNotification(NotificationLevel.INFO, 'Rollers Released')
         self.engine.plate_pneumatic.pull()
         self.engine.grip_pneumatic.pull()
         sendNotification(NotificationLevel.INFO, 'Plate is up')
         
         self.engine.MachineMotion.emitSpeed(self.engine.Roller_speed)   
-        self.engine.MachineMotion.emitemitAcceleration(self.engine.Roller_accel)
+        self.engine.MachineMotion.emitAcceleration(self.engine.Roller_accel)
         self.engine.MachineMotion.emitRelativeMove(self.engine.roller_axis, "positive", self.engine.roller_feed_length)
         self.engine.MachineMotion.waitForMotionCompletion()
 
@@ -579,17 +580,17 @@ class Measure(MachineAppState):
     def onEnter(self):
         
         sendNotification(NotificationLevel.UI_INFO,'Feeding State',{'ui_state': 'Feed'})
-        self.engine.MachineMotion.roller_pneumatic.pull()
+        self.engine.roller_pneumatic.pull()
         sendNotification(NotificationLevel.INFO, 'Rollers up')
 
         self.engine.MachineMotion.emitSpeed(self.engine.Grip_speed)   
-        self.engine.MachineMotion.emitemitAcceleration(self.engine.Grip_accel)
+        self.engine.MachineMotion.emitAcceleration(self.engine.Grip_accel)
         self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.material_length_mm)
         sendNotification(NotificationLevel.INFO, 'Measuring out {}mm'.format(self.engine.material_length)) 
         self.engine.MachineMotion.waitForMotionCompletion()
 
         #tighten material for clamping
-        self.engine.MachineMotion.roller_pneumatic.release()
+        self.engine.roller_pneumatic.release()
         sendNotification(NotificationLevel.INFO, 'Rollers released')
         self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.grip_tighten_length)
         self.engine.MachineMotion.waitForMotionCompletion()
@@ -679,7 +680,21 @@ class Cut(MachineAppState):
         super().__init__(engine) 
         
     def onEnter(self):
+
+        #raise clamp and roller
+        self.engine.roller_pneumatic.pull()
+        self.engine.plate_pneumatic.pull()
      
+        #move tape past knife
+        self.engine.MachineMotion.emitSpeed(self.engine.Grip_speed)
+        self.engine.MachineMotion.emitAcceleration(self.engine.Grip_accel)
+
+        self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.position_cut_length)
+        self.engine.MachineMotion.waitForMotionCompletion()
+
+        #clamp
+        self.engine.roller_pneumatic.release()
+        self.engine.plate_pneumatic.push()
         
         self.engine.MachineMotion.emitSpeed(self.engine.Cut_speed)
         self.engine.MachineMotion.emitAcceleration(self.engine.Cut_accel)
@@ -723,7 +738,7 @@ class Outfeed(MachineAppState):
 
         #move material onto bed
         self.engine.MachineMotion.emitSpeed(self.engine.Grip_speed)   
-        self.engine.MachineMotion.emitemitAcceleration(self.engine.Grip_accel)
+        self.engine.MachineMotion.emitAcceleration(self.engine.Grip_accel)
         self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.grip_offload_length)
         sendNotification(NotificationLevel.INFO, 'Off loading material onto bed') 
         self.engine.MachineMotion.waitForMotionCompletion()
