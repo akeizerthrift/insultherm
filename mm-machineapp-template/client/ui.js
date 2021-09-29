@@ -21,6 +21,8 @@ function getDefaultConfiguration() {
         prepare_new_roll: false,
         first_roll: false,
         manual_cut: false,
+        replace_tape: false,
+        cut_tape: false,
         singleBubble: false,
         doubleBubble: false,
         material_length: 0,
@@ -71,36 +73,42 @@ function buildEditor(pConfiguration) {
             if (pConfiguration.prepare_new_roll) { return 'prepare_new_roll'; }
             if (pConfiguration.first_roll) { return 'first_roll'; }
             if (pConfiguration.manual_cut) { return 'manual_cut'; }
+            if (pConfiguration.replace_tape) { return 'replace_tape'; }
+            if (pConfiguration.cut_tape) { return 'cut_tape'; }
         },
         lMode = selectInput('Start sequence', lGetMode(), [
             { key: "Home", value: "home" },
             { key: "Prepare new roll", value: "prepare_new_roll" },
             { key: "First roll", value: "first_roll" },
             { key: "Manual cut", value: "manual_cut" },
+            { key: "Replace tape", value: "replace_tape" },
+            { key: "Cut tape", value: "cut_tape" },
         ], function(pSelection) {
             pConfiguration.home = false;
             pConfiguration.prepare_new_roll = false;
             pConfiguration.first_roll = false;
             pConfiguration.manual_cut = false;
+            pConfiguration.replace_tape = false;
+            pConfiguration.cut_tape = false;
 
             pConfiguration[pSelection] = true;
             lUpdateCookies();
         }).appendTo(lEditorWrapper),
         
-        lGetType = function() {
-            if (pConfiguration.singleBubble) { return 'singleBubble'; }
-            if (pConfiguration.doubleBubble) { return 'doubleBubble'; }
-        },
-        lType = selectInput('Material Type', lGetType(), [
-            { key: "Single Bubble", value: "singleBubble" },
-            { key: "Double Bubble", value: "doubleBubble" },
-        ], function(pSelection) {
-            pConfiguration.singleBubble = false;
-            pConfiguration.doubleBubble = false;
+        // lGetType = function() {
+        //     if (pConfiguration.singleBubble) { return 'singleBubble'; }
+        //     if (pConfiguration.doubleBubble) { return 'doubleBubble'; }
+        // },
+        // lType = selectInput('Material Type', lGetType(), [
+        //     { key: "Single Bubble", value: "singleBubble" },
+        //     { key: "Double Bubble", value: "doubleBubble" },
+        // ], function(pSelection) {
+        //     pConfiguration.singleBubble = false;
+        //     pConfiguration.doubleBubble = false;
             
-            pConfiguration[pSelection] = true;
-            lUpdateCookies();
-        }).appendTo(lEditorWrapper),
+        //     pConfiguration[pSelection] = true;
+        //     lUpdateCookies();
+        // }).appendTo(lEditorWrapper),
         
         lMaterialLength = numericInput('Material Length (inches)', pConfiguration.material_length, function(pValue) {
             if (pValue >= 0 && pValue <= 2400) {

@@ -1,3 +1,5 @@
+# Version 9/29/2021 1:49 PM 
+
 #/usr/bin/python3
 
 from env import env
@@ -92,7 +94,7 @@ class MachineAppEngine(BaseMachineAppEngine):
 
         #Rollers
         self.roller_axis = 1
-        self.MachineMotion.configAxis(self.roller_axis, 8, 319.186/5) #no gearbox still devide 5?
+        self.MachineMotion.configAxis(self.roller_axis, 8, 319.186)
         self.MachineMotion.configAxisDirection(self.roller_axis, 'negative')
 
         # Cut/tape Timing Belt
@@ -110,7 +112,7 @@ class MachineAppEngine(BaseMachineAppEngine):
         dio2 = mm_IP
         dio3 = mm_IP
         
-        self.knife_pneumatic = Pneumatic("Knife Pneumatic", ipAddress=dio1, networkId=1, pushPin=0, pullPin=1)     
+        # self.knife_pneumatic = Pneumatic("Knife Pneumatic", ipAddress=dio1, networkId=1, pushPin=0, pullPin=1)     
         self.roller_pneumatic = Pneumatic("Roller Pneumatic", ipAddress=dio1, networkId=1, pushPin=2, pullPin=3) 
         self.plate_pneumatic = Pneumatic("Plate Pneumatic", ipAddress=dio2, networkId=2, pushPin=0, pullPin=1)
         self.grip_pneumatic = Pneumatic("Grip Pneumatic", ipAddress=dio2, networkId=2, pushPin=2, pullPin=3)
@@ -141,10 +143,10 @@ class MachineAppEngine(BaseMachineAppEngine):
         self.Roller_accel = 120
         self.Tape_speed = 100
         self.Tape_accel = 100
-        self.Cut_speed = 850
-        self.Cut_accel = 850
-        self.Grip_speed = 850
-        self.Grip_accel = 850
+        self.Cut_speed = 450
+        self.Cut_accel = 100
+        self.Grip_speed = 100
+        self.Grip_accel = 450
         self.scrap_distance = 20 #mm 
         self.sheet_count = 0
         self.material_length = 0
@@ -433,15 +435,19 @@ class StartState(MachineAppState):
         super().__init__(engine)
 
     def onEnter(self):
-        self.engine.cut_length = 1500
+        # self.engine.cut_length = 1500
         self.engine.knife_output.low()
         time.sleep(0.1) #seconds
-        self.engine.MachineMotion.emitSpeed(self.engine.TimingBelt_speed)
-        self.engine.MachineMotion.emitAcceleration(self.engine.TimingBelt_accel)
-        #TODO: home the first time
+        self.engine.MachineMotion.emitSpeed(self.engine.Cut_speed)
+        self.engine.MachineMotion.emitAcceleration(self.engine.Cut_accel)
+
         self.engine.MachineMotion.emitHome(self.engine.cut_tape_axis) #moves timing belt to Home position (0)
         sendNotification(NotificationLevel.INFO, 'Knife moving to home')
         self.engine.MachineMotion.waitForMotionCompletion()
+
+        self.engine.MachineMotion.emitHome(self.engine.grip_axis)
+        self.engine.MachineMotion.waitForMotionCompletion()
+
         self.engine.roller_pneumatic.release()
         time.sleep(0.5)
         sendNotification(NotificationLevel.INFO, 'Rollers Released')
@@ -449,7 +455,7 @@ class StartState(MachineAppState):
         sendNotification(NotificationLevel.INFO, 'Plate is up')
         sendNotification(NotificationLevel.UI_INFO,'',{ 'ui_sheets_cut': self.engine.sheet_count})
         
-        self.gotoState('Roll')
+        self.gotoState('Home')
        
         # self.engine.sensor_value = self.engine.MachineMotion.digitalRead(1, 0) #(networkid,pin)
         # sendNotification(NotificationLevel.INFO, 'roll detected  =  '+ str(self.engine.sensor_value))
@@ -490,13 +496,15 @@ class HomingState(MachineAppState):
         time.sleep(0.5)
         sendNotification(NotificationLevel.INFO, 'Rollers Released')
 
-        self.engine.MachineMotion.emitSpeed(self.engine.Tape_speed)
-        self.engine.MachineMotion.emitAcceleration(self.engine.Tape_accel)
-        #TODO: home the first time
-        # 
-        # self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis,0) #moves timing belt to Home position (0)
+        self.engine.MachineMotion.emitSpeed(self.engine.Cut_speed)
+        self.engine.MachineMotion.emitAcceleration(self.engine.Cut_accel)
+
+        self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis,0) #moves timing belt to Home position (0)
         self.engine.MachineMotion.waitForMotionCompletion()
         sendNotification(NotificationLevel.INFO, 'Knife moving to home')
+
+        self.engine.MachineMotion.emitSpeed(self.engine.Grip_speed)
+        self.engine.MachineMotion.emitAcceleration(self.engine.Grip_accel)
 
         self.engine.MachineMotion.emitAbsoluteMove(self.engine.grip_axis,0)
         self.engine.MachineMotion.waitForMotionCompletion()
