@@ -157,7 +157,7 @@ class MachineAppEngine(BaseMachineAppEngine):
         self.cut_end_pos = 0
         self.tape_start_pos = 30             #position tape under material
         self.tape_apply_pos = 40     #postion of applicator before buffer
-        self.tape_buff_pos = 900     #position before cut
+        self.tape_buff_pos = 925     #position before cut
         self.tape_end_pos = self.cut_start_pos   #cuts and leaves tape in final postion
         self.roller_feed_length = 210   #postions material in grip
         self.grip_tighten_length = 3    #clamped material pulled taught
@@ -179,7 +179,7 @@ class MachineAppEngine(BaseMachineAppEngine):
             self.sheet_count                    = self.configuration['sheet_count']
             self.reset_running_total_cuts = self.configuration['reset_running_total_cuts']
 
-            self.material_length_mm = self.material_length - (self.roller_feed_length - self.pos_cut_length)
+            self.material_length_mm = (self.material_length * 25.4) - (self.roller_feed_length - self.pos_cut_length)
             
             # if self.configuration['singleBubble']:
             #      self.material_length_mm = self.material_length * 24.5 * 1.055 #tolerence
