@@ -56,3 +56,11 @@ class Digital_Out ():
         self._turn_pin_off(self.pin)
         time.sleep(1)
         return True
+
+    def highF(self):
+        self._turn_pin_on(self.pin)
+        return True
+        
+    def lowF(self):
+        self._turn_pin_off(self.pin)
+        return True

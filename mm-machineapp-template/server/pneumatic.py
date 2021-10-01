@@ -51,7 +51,12 @@ class Pneumatic ():
     def push(self):
         self._turn_pin_off(self.pullPin)
         self._turn_pin_on(self.pushPin)
-        time.sleep(3)
+        time.sleep(2)
+        return True
+
+    def pushF(self):
+        self._turn_pin_off(self.pullPin)
+        self._turn_pin_on(self.pushPin)
         return True
         
     def pull(self):
