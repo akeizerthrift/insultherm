@@ -148,20 +148,22 @@ class MachineAppEngine(BaseMachineAppEngine):
         self.Cut_accel = 300
         self.Grip_speed = 800
         self.Grip_accel = 450
+        self.Drop_speed = 800
+        self.Drop_accel = 800
         self.scrap_distance = 20 #mm 
         self.sheet_count = 0
         self.material_length = 0
         self.type_material = 0
         self.sheets_cut = self.sheet_count 
         self.cut_start_pos = 1000
-        self.pos_cut_length = 85
+        self.pos_cut_length = 86
         self.cut_end_pos = 0
         self.tape_start_pos = 30             #position tape under material
         self.tape_apply_pos = 40     #postion of applicator before buffer
         self.tape_buff_pos = 925     #position before cut
         self.tape_end_pos = self.cut_start_pos   #cuts and leaves tape in final postion
         self.roller_feed_length = 210   #postions material in grip
-        self.grip_tighten_length = 3    #clamped material pulled taught
+        self.grip_tighten_length = 6    #clamped material pulled taught
         self.grip_offload_length = 155  #postion material is offloaded
         self.grip_drop_length = 150     #moves material out of grip
         self.reset_running_total_cuts = False
@@ -646,14 +648,15 @@ class Clamp(MachineAppState):
         super().__init__(engine) 
 
     def onEnter(self):
-        self.engine.plate_pneumatic.push()   
-        sendNotification(NotificationLevel.UI_INFO,'Clamping Down',{ 'ui_state': 'Clamp' })
 
         #tightening
         self.engine.MachineMotion.emitSpeed(self.engine.Grip_speed)   
         self.engine.MachineMotion.emitAcceleration(self.engine.Grip_accel)
         self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.grip_tighten_length)
         self.engine.MachineMotion.waitForMotionCompletion()
+
+        self.engine.plate_pneumatic.push()   
+        sendNotification(NotificationLevel.UI_INFO,'Clamping Down',{ 'ui_state': 'Clamp' })
 
         self.gotoState('Tape')
 
