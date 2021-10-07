@@ -446,8 +446,8 @@ class FirstRoll(MachineAppState):
         sendNotification(NotificationLevel.UI_INFO,'',{ 'ui_sheets_cut': self.engine.sheet_count})
         
         self.engine.MachineMotion.waitForMotionCompletion()
-        self.engine.sheet_count = self.engine.sheet_count + 1 #this makes sure we remove this cut from our count
-        self.engine.running_total_cuts = self.engine.running_total_cuts - 1
+        # self.engine.sheet_count = self.engine.sheet_count + 1 #this makes sure we remove this cut from our count
+        # self.engine.running_total_cuts = self.engine.running_total_cuts - 1
             
         self.gotoState('Measure')
 
@@ -585,10 +585,8 @@ class Feed(MachineAppState):
         sendNotification(NotificationLevel.UI_INFO,'Feeding State',{'ui_state': 'Feed'})
         #moves material into clamp
         self.engine.roller_pneumatic.release()
-        sendNotification(NotificationLevel.INFO, 'Rollers Released')
         self.engine.plate_pneumatic.pull()
         self.engine.grip_pneumatic.pull()
-        sendNotification(NotificationLevel.INFO, 'Plate is up')
         
         self.engine.MachineMotion.emitSpeed(self.engine.Roller_speed)   
         self.engine.MachineMotion.emitAcceleration(self.engine.Roller_accel)
@@ -616,9 +614,8 @@ class Measure(MachineAppState):
 
     def onEnter(self):
         
-        sendNotification(NotificationLevel.UI_INFO,'Feeding State',{'ui_state': 'Feed'})
+        sendNotification(NotificationLevel.UI_INFO,'Measuring State',{'ui_state': 'Feed'})
         self.engine.roller_pneumatic.pull()
-        sendNotification(NotificationLevel.INFO, 'Rollers up')
 
         self.engine.MachineMotion.emitSpeed(self.engine.Grip_speed)   
         self.engine.MachineMotion.emitAcceleration(self.engine.Grip_accel)
@@ -628,7 +625,6 @@ class Measure(MachineAppState):
 
         #tighten material for clamping
         self.engine.roller_pneumatic.release()
-        sendNotification(NotificationLevel.INFO, 'Rollers released')
         # self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.grip_tighten_length)
         # self.engine.MachineMotion.waitForMotionCompletion()
 
@@ -649,6 +645,10 @@ class Clamp(MachineAppState):
 
     def onEnter(self):
 
+        time.sleep(1)
+
+        sendNotification(NotificationLevel.UI_INFO,'Claming State',{ 'ui_state': 'Clamp' })
+
         #tightening
         self.engine.MachineMotion.emitSpeed(self.engine.Grip_speed)   
         self.engine.MachineMotion.emitAcceleration(self.engine.Grip_accel)
@@ -656,7 +656,7 @@ class Clamp(MachineAppState):
         self.engine.MachineMotion.waitForMotionCompletion()
 
         self.engine.plate_pneumatic.push()   
-        sendNotification(NotificationLevel.UI_INFO,'Clamping Down',{ 'ui_state': 'Clamp' })
+        
 
         self.gotoState('Tape')
 
@@ -718,6 +718,9 @@ class Cut(MachineAppState):
         
     def onEnter(self):
 
+        sendNotification(NotificationLevel.UI_INFO,'Cutting State',{'ui_state': 'Tape'})
+
+
         #raise clamp and roller
         self.engine.roller_pneumatic.pull()
         self.engine.plate_pneumatic.pull()
@@ -741,7 +744,6 @@ class Cut(MachineAppState):
         # self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis, self.engine.cut_start_pos) 
         # self.engine.MachineMotion.waitForMotionCompletion()
 
-        sendNotification(NotificationLevel.UI_INFO,'Blade Up',{ 'ui_state': 'Cut' })
         self.engine.knife_output.highF()
 
         sendNotification(NotificationLevel.INFO,'Cutting')
@@ -766,28 +768,29 @@ class Outfeed(MachineAppState):
 
     def onEnter(self):
         
-        sendNotification(NotificationLevel.UI_INFO,'Out Feeding State',{'ui_state': 'OutFeed'})
+        sendNotification(NotificationLevel.UI_INFO,'Out Feed State',{'ui_state': 'OutFeed'})
 
         #lift plate
         self.engine.plate_pneumatic.pull()
-        sendNotification(NotificationLevel.INFO,'Plate is up')
 
         #move material onto bed
         self.engine.MachineMotion.emitSpeed(self.engine.Grip_speed)   
         self.engine.MachineMotion.emitAcceleration(self.engine.Grip_accel)
         self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.grip_offload_length)
-        sendNotification(NotificationLevel.INFO, 'Off loading material onto bed') 
+        sendNotification(NotificationLevel.INFO, 'Off loading material') 
         self.engine.MachineMotion.waitForMotionCompletion()
 
         #drop material
         self.engine.grip_pneumatic.pull()
 
+        self.engine.MachineMotion.emitSpeed(self.engine.Drop_speed)   
+        self.engine.MachineMotion.emitAcceleration(self.engine.Drop_accel)
         self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.grip_drop_length)
         # self.engine.MachineMotion.waitForMotionCompletion()
 
         #return grip home for next cycle
         self.engine.MachineMotion.emitAbsoluteMove(self.engine.grip_axis, 0)
-        # self.engine.MachineMotion.waitForMotionCompletion()
+        self.engine.MachineMotion.waitForMotionCompletion()
        
         self.engine.sheet_count = self.engine.sheet_count - 1
         self.engine.sheets_cut = self.engine.sheets_cut -1 #do I need this
