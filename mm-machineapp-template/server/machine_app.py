@@ -119,6 +119,7 @@ class MachineAppEngine(BaseMachineAppEngine):
         self.grip_pneumatic = Pneumatic("Grip Pneumatic", ipAddress=dio2, networkId=2, pushPin=2, pullPin=3)
         
         #outputs
+        self.light_output = Digital_Out("Light Output", ipAddress=dio1, networkId=1, pin=0)
         self.knife_output = Digital_Out("Knife Output", ipAddress=dio1, networkId=1, pin=1)
         self.apply_output = Digital_Out("Apply Output", ipAddress=dio3, networkId=3, pin=0)
         self.tape_knife_output = Digital_Out("Tape Knife Output", ipAddress=dio3, networkId=3, pin=1)
@@ -156,13 +157,13 @@ class MachineAppEngine(BaseMachineAppEngine):
         self.type_material = 0
         self.sheets_cut = self.sheet_count 
         self.cut_start_pos = 1000
-        self.pos_cut_length = 86
+        self.pos_cut_length = 83
         self.cut_end_pos = 0
-        self.tape_start_pos = 30             #position tape under material
-        self.tape_apply_pos = 40     #postion of applicator before buffer
-        self.tape_buff_pos = 925     #position before cut
+        self.tape_start_pos = 0             #position tape under material
+        self.tape_apply_pos = 10     #postion of applicator before buffer
+        self.tape_buff_pos = 890     #position before cut
         self.tape_end_pos = self.cut_start_pos   #cuts and leaves tape in final postion
-        self.roller_feed_length = 210   #postions material in grip
+        self.roller_feed_length = 200   #postions material in grip
         self.grip_tighten_length = 6    #clamped material pulled taught
         self.grip_offload_length = 155  #postion material is offloaded
         self.grip_drop_length = 150     #moves material out of grip
@@ -182,7 +183,7 @@ class MachineAppEngine(BaseMachineAppEngine):
             self.sheet_count                    = self.configuration['sheet_count']
             self.reset_running_total_cuts = self.configuration['reset_running_total_cuts']
 
-            self.material_length_mm = (self.material_length * 25.4) + (self.roller_feed_length - self.pos_cut_length)
+            self.material_length_mm = (self.material_length * 25.4) - (self.roller_feed_length + self.pos_cut_length + self.grip_tighten_length)
             
             # if self.configuration['singleBubble']:
             #      self.material_length_mm = self.material_length * 24.5 * 1.055 #tolerence
@@ -264,6 +265,8 @@ class InitializeState(MachineAppState):
             f = open ("count_sum.txt","r")
             total_sum_count_string = f.read()
             self.engine.running_total_cuts = int(total_sum_count_string)
+
+        self.engine.light_output.low()
             
         sendNotification(NotificationLevel.UI_INFO,'',{ 'ui_running_total_cuts': self.engine.running_total_cuts})
         sendNotification(NotificationLevel.UI_INFO,'Initializing',{ 'ui_state': 'Initializing'})
@@ -328,7 +331,7 @@ class Manual_Cut(MachineAppState):
             # self.engine.MachineMotion.waitForMotionCompletion()
         
         
-     
+        self.engine.light_output.high()
         self.engine.stop()
     
     def update(self): 
@@ -356,6 +359,7 @@ class PrepareNewRollState(MachineAppState):
         self.engine.MachineMotion.emitHome(self.engine.grip_axis)
         self.engine.MachineMotion.waitForMotionCompletion()
 
+        self.engine.light_output.high()
         self.engine.stop()
 
     def update(self): 
@@ -383,6 +387,7 @@ class ReplaceTapeState(MachineAppState):
         self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis, 1000)
         self.engine.MachineMotion.waitForMotionCompletion()
 
+        self.engine.light_output.high()
         self.engine.stop()
 
     def update(self): 
@@ -405,6 +410,7 @@ class CutTapeState(MachineAppState):
 
         self.engine.MachineMotion.waitForMotionCompletion()
 
+        self.engine.light_output.high()
         self.engine.stop()
 
     def update(self): 
@@ -816,6 +822,8 @@ class Outfeed(MachineAppState):
         
         else:
             sendNotification(NotificationLevel.INFO,'Final time = ' + str(self.engine.tf))
+
+            self.engine.light_output.high()
             self.engine.stop()
 
     def update(self):
