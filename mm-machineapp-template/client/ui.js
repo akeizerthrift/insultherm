@@ -95,16 +95,31 @@ function buildEditor(pConfiguration) {
             lUpdateCookies();
         }).appendTo(lEditorWrapper),
         
+        // lGetType = function() {
+        //     if (pConfiguration.mylar) { return 'mylar'; }
+        //     if (pConfiguration.asj) { return 'asj'; }
+        // },
+        // lType = selectInput('Material Type', lGetType(), [
+        //     { key: "Mylar", value: "mylar" },
+        //     { key: "ASJ", value: "asj" },
+        // ], function(pSelection) {
+        //     pConfiguration.mylar = false;
+        //     pConfiguration.asj = false;
+            
+        //     pConfiguration[pSelection] = true;
+        //     lUpdateCookies();
+        // }).appendTo(lEditorWrapper),
+
         lGetType = function() {
-            if (pConfiguration.mylar) { return 'mylar'; }
-            if (pConfiguration.asj) { return 'asj'; }
+            if (pConfiguration.w36) { return 'w36'; }
+            if (pConfiguration.w235) { return 'w235'; }
         },
-        lType = selectInput('Material Type', lGetType(), [
-            { key: "Mylar", value: "mylar" },
-            { key: "ASJ", value: "asj" },
+        lType = selectInput('Material Width', lGetType(), [
+            { key: "36\"", value: "w36" },
+            { key: "23.5\"", value: "w235" },
         ], function(pSelection) {
-            pConfiguration.mylar = false;
-            pConfiguration.asj = false;
+            pConfiguration.w36 = true;
+            pConfiguration.w235 = false;
             
             pConfiguration[pSelection] = true;
             lUpdateCookies();
@@ -127,6 +142,11 @@ function buildEditor(pConfiguration) {
             
             }
         }).appendTo(lEditorWrapper),
+
+        lResetCount = checkbox('Split Stack', pConfiguration.splitStack, function(pValue) {
+            pConfiguration.splitStack = pValue;
+            lUpdateCookies();
+        }).appendTo(lEditorWrapper);
         
         lResetCount = checkbox('Reset Running Total Cuts', pConfiguration.reset_running_total_cuts, function(pValue) {
             pConfiguration.reset_running_total_cuts = pValue;
