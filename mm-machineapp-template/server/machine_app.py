@@ -1,4 +1,4 @@
-# Version 9/30/2021 2:32 PM 
+# Version 10/28/2021 4:02 PM 
 
 #/usr/bin/python3
 
@@ -163,15 +163,15 @@ class MachineAppEngine(BaseMachineAppEngine):
         self.tape_start_pos = 15             #position tape under material
         self.tape_apply_pos = 17     #postion of applicator before buffer
         self.tape_buff_pos = 55
-        self.tape_cut_pos_36 = 913     #position before cut for 36" width
-        self.tape_cut_pos_235 = 913     #position before cut for 23.5" width
+        self.tape_cut_pos = 913     #position before cut for 36" width
         self.tape_end_pos = self.cut_start_pos   #cuts and leaves tape in final postion
         self.roller_feed_length = 195   #postions material in grip    
         self.pre_roller_feed = 5   #prevents jam
         self.grip_offload_length1 = 155  #postion material is offloaded for first stack
-        self.grip_offload_length1 = 993  #postion material is offloaded for second stack
+        self.grip_offload_length2 = 993  #postion material is offloaded for second stack
         self.grip_drop_length = 150     #moves material out of grip
         self.reset_running_total_cuts = False
+        self.splitStack = False
         self.running_total_cuts = 0
         
         #self.flag = 0 #this will note if a new roll is in place
@@ -187,12 +187,23 @@ class MachineAppEngine(BaseMachineAppEngine):
             self.sheet_total                    = self.configuration['sheet_count']
             self.sheet_count                    = self.configuration['sheet_count']
             self.reset_running_total_cuts = self.configuration['reset_running_total_cuts']
+            self.splitStack = self.configuration['splitStack']
+            
 
             self.material_length_mm = (self.material_length * 25.4) - (self.roller_feed_length + self.pos_cut_length) - self.length_adjustment
 
             self.grip_tighten_length = 6 + (self.material_length * 0.022) #clamped material pulled taught
 
             self.pos_cut_length = self.pos_cut_length - self.grip_tighten_length
+
+            if self.configuration['w36']:
+                 self.tape_cut_pos = 913
+                 self.tape_end_pos = self.cut_start_pos
+            
+            elif self.configuration['w235']:
+                self.tape_cut_pos = 595
+                self.tape_end_pos = 620
+
             
             # if self.configuration['singleBubble']:
             #      self.material_length_mm = self.material_length * 24.5 * 1.055 #tolerence
@@ -275,7 +286,7 @@ class InitializeState(MachineAppState):
             total_sum_count_string = f.read()
             self.engine.running_total_cuts = int(total_sum_count_string)
 
-        if self.engine.splitStack == True & self.engine.material_length > 32.25:
+        if self.engine.splitStack == True and self.engine.material_length > 32.25:
             sendNotification(NotificationLevel.INFO, 'ERROR: Split Stack requires length less than 32.25\"')
             self.engine.stop()
 
@@ -717,11 +728,7 @@ class Tape(MachineAppState):
         #buffer roller initiates and applyes tape the length of the material
         self.engine.buff_output.highF()
 
-        if self.configuration['w36']:
-            self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis, self.engine.tape_cut_pos_36)
-        elif self.configuration['w235']:
-            self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis, self.engine.tape_cut_pos_235)
-
+        self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis, self.engine.tape_cut_pos)
         self.engine.MachineMotion.waitForMotionCompletion()
 
         # tape is cut
@@ -814,14 +821,14 @@ class Outfeed(MachineAppState):
         self.engine.MachineMotion.emitAcceleration(self.engine.Grip_accel)
 
 
-        if self.configuration['splitStack']:
+        if self.engine.splitStack == True:
             if self.engine.sheet_count / self.engine.sheet_total > 0.5:
                 self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.grip_offload_length1)
             else:
                 self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.grip_offload_length2)
         else:
             self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.grip_offload_length1)
-            
+
         sendNotification(NotificationLevel.INFO, 'Off loading material') 
         self.engine.MachineMotion.waitForMotionCompletion()
 
