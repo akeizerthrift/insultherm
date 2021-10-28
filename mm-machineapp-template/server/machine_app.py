@@ -157,14 +157,16 @@ class MachineAppEngine(BaseMachineAppEngine):
         self.type_material = 0
         self.sheets_cut = self.sheet_count 
         self.cut_start_pos = 1000
-        self.pos_cut_length = 83
+        self.pos_cut_length = 95 #92
+        self.length_adjustment = 0
         self.cut_end_pos = 0
-        self.tape_start_pos = 0             #position tape under material
-        self.tape_apply_pos = 10     #postion of applicator before buffer
-        self.tape_buff_pos = 890     #position before cut
+        self.tape_start_pos = 15             #position tape under material
+        self.tape_apply_pos = 17     #postion of applicator before buffer
+        self.tape_buff_pos = 55
+        self.tape_cut_pos = 913     #position before cut
         self.tape_end_pos = self.cut_start_pos   #cuts and leaves tape in final postion
-        self.roller_feed_length = 200   #postions material in grip
-        self.grip_tighten_length = 6    #clamped material pulled taught
+        self.roller_feed_length = 195   #postions material in grip    
+        self.pre_roller_feed = 5   #prevents jam
         self.grip_offload_length = 155  #postion material is offloaded
         self.grip_drop_length = 150     #moves material out of grip
         self.reset_running_total_cuts = False
@@ -183,7 +185,11 @@ class MachineAppEngine(BaseMachineAppEngine):
             self.sheet_count                    = self.configuration['sheet_count']
             self.reset_running_total_cuts = self.configuration['reset_running_total_cuts']
 
-            self.material_length_mm = (self.material_length * 25.4) - (self.roller_feed_length + self.pos_cut_length + self.grip_tighten_length)
+            self.material_length_mm = (self.material_length * 25.4) - (self.roller_feed_length + self.pos_cut_length) - self.length_adjustment
+
+            self.grip_tighten_length = 6 + (self.material_length * 0.022) #clamped material pulled taught
+
+            self.pos_cut_length = self.pos_cut_length - self.grip_tighten_length
             
             # if self.configuration['singleBubble']:
             #      self.material_length_mm = self.material_length * 24.5 * 1.055 #tolerence
@@ -591,6 +597,7 @@ class Feed(MachineAppState):
         sendNotification(NotificationLevel.UI_INFO,'Feeding State',{'ui_state': 'Feed'})
         #moves material into clamp
         self.engine.roller_pneumatic.release()
+        
         self.engine.plate_pneumatic.pull()
         self.engine.grip_pneumatic.pull()
         
@@ -693,12 +700,16 @@ class Tape(MachineAppState):
 
         self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis, self.engine.tape_apply_pos)
         self.engine.MachineMotion.waitForMotionCompletion()
-
+        
+        self.engine.apply_output.lowF()
+        
+        self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis, self.engine.tape_buff_pos)
+        self.engine.MachineMotion.waitForMotionCompletion()
+        
         #buffer roller initiates and applyes tape the length of the material
         self.engine.buff_output.highF()
-        self.engine.apply_output.lowF()
-
-        self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis, self.engine.tape_buff_pos)
+       
+        self.engine.MachineMotion.emitAbsoluteMove(self.engine.cut_tape_axis, self.engine.tape_cut_pos)
         self.engine.MachineMotion.waitForMotionCompletion()
 
         # tape is cut
@@ -742,6 +753,9 @@ class Cut(MachineAppState):
         #clamp
         self.engine.roller_pneumatic.release()
         self.engine.plate_pneumatic.push()
+
+        # self.engine.MachineMotion.emitRelativeMove(self.engine.grip_axis, "positive", self.engine.grip_tighten_length)
+        # self.engine.MachineMotion.waitForMotionCompletion()
         
         self.engine.MachineMotion.emitSpeed(self.engine.Cut_speed)
         self.engine.MachineMotion.emitAcceleration(self.engine.Cut_accel)
@@ -775,6 +789,10 @@ class Outfeed(MachineAppState):
     def onEnter(self):
         
         sendNotification(NotificationLevel.UI_INFO,'Out Feed State',{'ui_state': 'OutFeed'})
+
+        self.engine.MachineMotion.emitSpeed(self.engine.Roller_speed)   
+        self.engine.MachineMotion.emitAcceleration(self.engine.Roller_accel)
+        self.engine.MachineMotion.emitRelativeMove(self.engine.roller_axis, "positive", self.engine.pre_roller_feed)
 
         #lift plate
         self.engine.plate_pneumatic.pull()

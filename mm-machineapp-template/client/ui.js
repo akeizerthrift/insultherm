@@ -95,20 +95,20 @@ function buildEditor(pConfiguration) {
             lUpdateCookies();
         }).appendTo(lEditorWrapper),
         
-        // lGetType = function() {
-        //     if (pConfiguration.singleBubble) { return 'singleBubble'; }
-        //     if (pConfiguration.doubleBubble) { return 'doubleBubble'; }
-        // },
-        // lType = selectInput('Material Type', lGetType(), [
-        //     { key: "Single Bubble", value: "singleBubble" },
-        //     { key: "Double Bubble", value: "doubleBubble" },
-        // ], function(pSelection) {
-        //     pConfiguration.singleBubble = false;
-        //     pConfiguration.doubleBubble = false;
+        lGetType = function() {
+            if (pConfiguration.mylar) { return 'mylar'; }
+            if (pConfiguration.asj) { return 'asj'; }
+        },
+        lType = selectInput('Material Type', lGetType(), [
+            { key: "Mylar", value: "mylar" },
+            { key: "ASJ", value: "asj" },
+        ], function(pSelection) {
+            pConfiguration.mylar = false;
+            pConfiguration.asj = false;
             
-        //     pConfiguration[pSelection] = true;
-        //     lUpdateCookies();
-        // }).appendTo(lEditorWrapper),
+            pConfiguration[pSelection] = true;
+            lUpdateCookies();
+        }).appendTo(lEditorWrapper),
         
         lMaterialLength = numericInput('Material Length (inches)', pConfiguration.material_length, function(pValue) {
             if (pValue >= 0 && pValue <= 2400) {
